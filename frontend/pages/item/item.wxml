@@ -1,0 +1,2 @@
+<!--pages/item/detail.wxml-->
+<text>this is the page of {{id}}</text>
