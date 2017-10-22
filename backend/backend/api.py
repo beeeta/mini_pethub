@@ -1,4 +1,6 @@
+from flask import request
 from . import app
+
 from .middlewire import auth
 from .modeles import Pet
 
@@ -11,11 +13,18 @@ api = Api(app)
 class AdoptApi(Resource):
     # decorators = [auth.login_required]
     def get(self, id):
-        print('get method:{}'.format(id))
-        return {'msg':'hahahaha'}
+        pet = session.query(Pet).filter(Pet.id==id).one()
+        return write_resp("success",pet.to_json_dict())
 
     def put(self, id):
-        print('put method:{}'.format(id))
+
+        data_dic = {}
+        for i in request.form:
+            if hasattr(Pet,i):
+                data_dic[i] = request.form[i]
+        session.query(Pet).filter(Pet.id==id).update(data_dic)
+        return write_resp("success",id)
+
 
     def delete(self, id):
         print('delete method:{}'.format(id))
@@ -23,11 +32,20 @@ class AdoptApi(Resource):
 class AdoptsApi(Resource):
 
     def get(self):
-        Pet.query_all
-        return {"msg":"success"}
+        pets = session.query(Pet).all()
+        return write_resp("success",[pet.to_json_dict() for pet in pets])
 
+    def post(self):
+        pet = Pet()
+        for i in request.form:
+            if hasattr(pet,i):
+                setattr(pet,i,request.form[i])
+        session.add(pet)
+        session.commit()
+        return write_resp("success",pet.id)
 
-
+def write_resp(errMsg,data):
+    return {"errMsg":errMsg,"data":data}
 
 @app.teardown_request
 def shutdown_session(exception=None):
