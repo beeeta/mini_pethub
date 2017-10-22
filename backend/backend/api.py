@@ -2,7 +2,7 @@ from flask import request
 from . import app
 
 from .middlewire import auth
-from .modeles import Pet
+from .modeles import Pet,User
 
 from flask_restful import Api,Resource
 
@@ -13,7 +13,7 @@ api = Api(app)
 class AdoptApi(Resource):
     # decorators = [auth.login_required]
     def get(self, id):
-        pet = session.query(Pet).filter(Pet.id==id).one()
+        pet = session.query(Pet).filter(Pet.id==id).first()
         return write_resp("success",pet.to_json_dict())
 
     def put(self, id):
@@ -24,7 +24,6 @@ class AdoptApi(Resource):
                 data_dic[i] = request.form[i]
         session.query(Pet).filter(Pet.id==id).update(data_dic)
         return write_resp("success",id)
-
 
     def delete(self, id):
         print('delete method:{}'.format(id))
@@ -44,6 +43,40 @@ class AdoptsApi(Resource):
         session.commit()
         return write_resp("success",pet.id)
 
+
+class UserApi(Resource):
+    # decorators = [auth.login_required]
+    def get(self, id):
+        user = session.query(User).filter(User.id==id).first()
+        return write_resp("success",user.to_json_dict())
+
+    def put(self, id):
+
+        data_dic = {}
+        for i in request.form:
+            if hasattr(User,i):
+                data_dic[i] = request.form[i]
+        session.query(User).filter(User.id==id).update(data_dic)
+        return write_resp("success",id)
+
+    def delete(self, id):
+        print('delete method:{}'.format(id))
+
+class UsersApi(Resource):
+
+    def get(self):
+        users = session.query(User).all()
+        return write_resp("success",[user.to_json_dict() for user in users])
+
+    def post(self):
+        user = User()
+        for i in request.form:
+            if hasattr(user,i):
+                setattr(user,i,request.form[i])
+        session.add(user)
+        session.commit()
+        return write_resp("success",user.id)
+
 def write_resp(errMsg,data):
     return {"errMsg":errMsg,"data":data}
 
@@ -51,5 +84,8 @@ def write_resp(errMsg,data):
 def shutdown_session(exception=None):
     session.remove()
 
-api.add_resource(AdoptApi, '/pethub/api/v0.1/adopts/<int:id>', endpoint = 'adopt')
-api.add_resource(AdoptsApi, '/pethub/api/v0.1/adopts', endpoint = 'adopts')
+api.add_resource(AdoptApi, '/pethub/api/{}/adopts/<int:id>'.format(app.config['VERSION']), endpoint = 'adopt')
+api.add_resource(AdoptsApi, '/pethub/api/{}/adopts'.format(app.config['VERSION']), endpoint = 'adopts')
+
+api.add_resource(UserApi, '/pethub/api/{}/users/<int:id>'.format(app.config['VERSION']), endpoint = 'user')
+api.add_resource(UsersApi, '/pethub/api/{}/users'.format(app.config['VERSION']), endpoint = 'users')

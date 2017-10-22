@@ -1,11 +1,33 @@
+from collections import Iterable
+
 from datetime import datetime,timedelta
 
 from sqlalchemy import Column, Integer, String, ForeignKey
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship,backref
 
 from .db import Base
 
-class Pet(Base):
+class CommonEntity(object):
+
+    out_pros = ()
+
+    timeformater = '%Y-%m-%d %H:%M:%S'
+
+    def to_json_dict(self):
+        json_dic = {}
+        for i in self.out_pros:
+            if type(getattr(self, i)) is str or type(getattr(self, i)) is int:
+                json_dic[i] = getattr(self, i)
+            elif hasattr(getattr(self,i),'to_json_dict'):
+                json_dic[i] = getattr(self,i).to_json_dict()
+            elif isinstance(getattr(self,i),Iterable):
+                # json_dic[i] = [item.to_json_dict() for item in getattr(self,i)]
+                print('-------------------')
+                print([item for item in getattr(self,i)])
+        return json_dic
+
+
+class Pet(Base,CommonEntity):
 
     __tablename__ = 'pets'
     id = Column(Integer, primary_key=True)
@@ -18,20 +40,12 @@ class Pet(Base):
     updatetime = Column(String(32))
     valitime = Column(String(32))
     user_id = Column(ForeignKey('users.id'), nullable=False)
-    user = relationship("User", lazy='joined')
+    user = relationship('User', lazy='joined')
 
-    out_pros = ('id','imgurl','province','city','describe','createtime','updatetime','valitime')
+    out_pros = ('id','imgurl','province','city','describe','createtime','updatetime','valitime','user')
 
-    timeformater = '%Y-%m-%d %H:%M:%S'
-
-    def to_json_dict(self):
-        json_dic = {}
-        for i in self.out_pros:
-            json_dic[i] = getattr(self,i)
-        return json_dic
-
-    def __init__(self, imgurl=None, province=None,city=None,describe=None,createtime=datetime.now().strftime(timeformater),
-                 valitime=(datetime.now()+timedelta(days=30)).strftime(timeformater), user = None, user_id = None):
+    def __init__(self, imgurl=None, province=None,city=None,describe=None,createtime=datetime.now().strftime(CommonEntity.timeformater),
+                 valitime=(datetime.now()+timedelta(days=30)).strftime(CommonEntity.timeformater), user = None, user_id = None):
         self.imgurl = imgurl
         self.province = province
         self.city = city
@@ -45,7 +59,7 @@ class Pet(Base):
         return '<Pet %r>' % (self.id)
 
 
-class User(Base):
+class User(Base,CommonEntity):
     __tablename__ = 'users'
     id = Column(Integer,primary_key=True)
     name = Column(String(32))
@@ -56,10 +70,11 @@ class User(Base):
     city = Column(String(64))
     type = Column(Integer)  #0,管理员，1,普通用户，2,异常状态
     createtime = Column(String(32))
+    pets = relationship('Pet')
 
-    timeformater = '%Y-%m-%d %H:%M:%S'
+    out_pros = ('id', 'name', 'vx', 'qq', 'email', 'province', 'city', 'type','createtime','pets')
 
-    def __init__(self, name=None, vx=None,qq=None,email=None,province=None,city=None,type=1,createtime=datetime.now().strftime(timeformater)):
+    def __init__(self, name=None, vx=None,qq=None,email=None,province=None,city=None,type=1,createtime=datetime.now().strftime(CommonEntity.timeformater)):
         self.name = name
         self.vx = vx
         self.qq = qq
