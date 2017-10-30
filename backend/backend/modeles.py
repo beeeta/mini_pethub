@@ -17,17 +17,15 @@ class CommonEntity(object):
 
     timeformater = '%Y-%m-%d %H:%M:%S'
 
-    def to_json_dict(self):
+    def to_json_dict(self,isiter=True):
         json_dic = {}
         for i in self.out_pros:
             if type(getattr(self, i)) is str or type(getattr(self, i)) is int:
                 json_dic[i] = getattr(self, i)
-            elif hasattr(getattr(self,i),'to_json_dict'):
-                json_dic[i] = getattr(self,i).to_json_dict()
-            elif isinstance(getattr(self,i),Iterable):
-                # json_dic[i] = [item.to_json_dict() for item in getattr(self,i)]
-                print('-------------------')
-                print([item for item in getattr(self,i)])
+            elif isiter and hasattr(getattr(self,i),'to_json_dict'):
+                json_dic[i] = getattr(self,i).to_json_dict(False)
+            elif isiter and isinstance(getattr(self,i),Iterable):
+                json_dic[i] = [item.to_json_dict(False) for item in getattr(self,i)]
         return json_dic
 
 
