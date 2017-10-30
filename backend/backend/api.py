@@ -1,7 +1,7 @@
-from flask import request
+from flask import request,g
 from . import app
 
-from .middlewire import auth
+from .authority import auth
 from .modeles import Pet,User
 
 from flask_restful import Api,Resource
@@ -73,12 +73,20 @@ class UsersApi(Resource):
         for i in request.form:
             if hasattr(user,i):
                 setattr(user,i,request.form[i])
+        setattr(user,'hash_password',user.hash_password(request.form['password']))
         session.add(user)
         session.commit()
         return write_resp("success",user.id)
 
 def write_resp(errMsg,data):
     return {"errMsg":errMsg,"data":data}
+
+@app.route("/pethub/api/token")
+@auth.login_required
+def get_token():
+    token = g.user.generate_auth_token()
+    return write_resp('success', token)
+
 
 @app.teardown_request
 def shutdown_session(exception=None):

@@ -1,10 +1,14 @@
 from collections import Iterable
 
 from datetime import datetime,timedelta
+from passlib.hash import pbkdf2_sha256 as shalib
 
 from sqlalchemy import Column, Integer, String, ForeignKey
 from sqlalchemy.orm import relationship,backref
 
+from itsdangerous import TimedJSONWebSignatureSerializer as Serializer,SignatureExpired,BadSignature
+
+from . import app
 from .db import Base
 
 class CommonEntity(object):
@@ -63,25 +67,49 @@ class User(Base,CommonEntity):
     __tablename__ = 'users'
     id = Column(Integer,primary_key=True)
     name = Column(String(32))
+    password_hash = Column(String(256))
     vx = Column(String(32))
     qq = Column(String(16))
     email = Column(String(64))
     province = Column(String(32))
     city = Column(String(64))
-    type = Column(Integer)  #0,管理员，1,普通用户，2,异常状态
+    role_type = Column(Integer)  #0,管理员，1,普通用户，2,异常状态
     createtime = Column(String(32))
     pets = relationship('Pet')
 
     out_pros = ('id', 'name', 'vx', 'qq', 'email', 'province', 'city', 'type','createtime','pets')
 
-    def __init__(self, name=None, vx=None,qq=None,email=None,province=None,city=None,type=1,createtime=datetime.now().strftime(CommonEntity.timeformater)):
+    def hash_password(self, password):
+        self.password_hash = shalib.hash(password)
+
+    def verify_password(self, password):
+        return shalib.verify(password, self.password_hash)
+
+    def generate_auth_token(self, expiration=600):
+        s = Serializer(app.config['SECRET_KEY'], expires_in=expiration)
+        return s.dumps({'id': self.id})
+
+    @staticmethod
+    def verify_token(token):
+        s = Serializer(app.config['SECRET_KEY'])
+        try:
+            data = s.loads(token)
+        except SignatureExpired:
+            return None  # valid token, but expired
+        except BadSignature:
+            return None  # invalid token
+        user = User.query.get(data['id'])
+        return user
+
+
+    def __init__(self, name=None, vx=None,qq=None,email=None,province=None,city=None,role_type=1,createtime=datetime.now().strftime(CommonEntity.timeformater)):
         self.name = name
         self.vx = vx
         self.qq = qq
         self.email = email
         self.province = province
         self.city = city
-        self.type = type
+        self.role_type = role_type
         self.createtime = createtime
 
     def __repr__(self):
