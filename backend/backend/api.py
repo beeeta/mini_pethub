@@ -1,4 +1,4 @@
-from flask import request,g
+from flask import request,g,make_response,jsonify
 from . import app
 
 from .authority import auth
@@ -45,7 +45,7 @@ class AdoptsApi(Resource):
 
 
 class UserApi(Resource):
-    # decorators = [auth.login_required]
+    decorators = [auth.login_required]
     def get(self, id):
         user = session.query(User).filter(User.id==id).first()
         return write_resp("success",user.to_json_dict())
@@ -63,7 +63,9 @@ class UserApi(Resource):
         print('delete method:{}'.format(id))
 
 class UsersApi(Resource):
+    # decorators = [auth.login_required]
 
+    @auth.login_required
     def get(self):
         users = session.query(User).all()
         return write_resp("success",[user.to_json_dict() for user in users])
@@ -81,11 +83,11 @@ class UsersApi(Resource):
 def write_resp(errMsg,data):
     return {"errMsg":errMsg,"data":data}
 
-@app.route("/pethub/api/token")
+@app.route("/pethub/api/token", methods=['GET'])
 @auth.login_required
 def get_token():
     token = g.user.generate_auth_token()
-    return write_resp('success', token)
+    return make_response(jsonify(write_resp('success', token.decode('ascii'))))
 
 
 @app.teardown_request

@@ -6,8 +6,9 @@ Flask-RESTful==0.3.6
 Flask-SQLAlchemy==2.3.2
 itsdangerous==0.24
 Jinja2==2.9.6
+jsonpickle==0.9.5
 MarkupSafe==1.0
-pkg-resources==0.0.0
+passlib==1.7.1
 PyMySQL==0.7.11
 python-dateutil==2.6.1
 pytz==2017.2

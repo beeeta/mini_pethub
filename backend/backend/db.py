@@ -3,7 +3,7 @@ from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 from datetime import datetime,timedelta
 
-engine = create_engine("mysql+pymysql://root:123456@localhost:3306/pethub?charset=utf8", echo=True)
+engine = create_engine("mysql+pymysql://root:123456@localhost:3307/pethub?charset=utf8", echo=True)
 session = scoped_session(sessionmaker(autocommit=False,
                                          autoflush=False,
                                          bind=engine))

@@ -1,5 +1,5 @@
-from backend import app
-from backend.api import api
+from backend.factory import create_app
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app = create_app()
+    app.run()

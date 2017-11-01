@@ -75,7 +75,7 @@ class User(Base,CommonEntity):
     createtime = Column(String(32))
     pets = relationship('Pet')
 
-    out_pros = ('id', 'name', 'vx', 'qq', 'email', 'province', 'city', 'type','createtime','pets')
+    out_pros = ('id', 'name', 'vx', 'qq', 'email', 'province', 'city', 'role_type', 'createtime','pets')
 
     def hash_password(self, password):
         self.password_hash = shalib.hash(password)
@@ -91,10 +91,13 @@ class User(Base,CommonEntity):
     def verify_token(token):
         s = Serializer(app.config['SECRET_KEY'])
         try:
+            print('token:{}'.format(token))
             data = s.loads(token)
         except SignatureExpired:
+            print('================ signature expireds')
             return None  # valid token, but expired
         except BadSignature:
+            print('================ bad signature')
             return None  # invalid token
         user = User.query.get(data['id'])
         return user
