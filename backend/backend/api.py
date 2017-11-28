@@ -45,13 +45,12 @@ class AdoptsApi(Resource):
 
 
 class UserApi(Resource):
-    decorators = [auth.login_required]
+    # decorators = [auth.login_required]
     def get(self, id):
         user = session.query(User).filter(User.id==id).first()
         return write_resp("success",user.to_json_dict())
 
     def put(self, id):
-
         data_dic = {}
         for i in request.form:
             if hasattr(User,i):
