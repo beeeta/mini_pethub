@@ -11,15 +11,13 @@ Base = declarative_base()
 Base.query = session.query_property()
 
 def init_db():
-    from .modeles import Pet,User
+    from .modeles import Pet,User,Relation
     Base.metadata.create_all(bind=engine)
-    user = User(name='beta',vx='bbqq',qq='121212',email='soso@gmail.com',province='湖北',city='武汉')
+    user = User(name='beta2',vx='bbqq2',qq='121212',email='soso@gmail.com',province='湖北',city='武汉')
+    pet = Pet(imgurl='2.jpg',province='gd',city='sz',describe='aaaaa')
+    relations = Relation(user=user,pet=pet)
     session.add(user)
-    for i in range(5):
-        pet = Pet(imgurl=str(i)+'.jpg',province='广东',city='深圳',describe='一个小狗',
-                  createtime=datetime.now().strftime(Pet.timeformater),
-                  valitime=(datetime.now()+timedelta(days=30)).strftime(Pet.timeformater),
-                  user=user)
-        session.add(pet)
+    session.add(pet)
+    session.add(relations)
     session.commit()
 
