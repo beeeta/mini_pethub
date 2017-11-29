@@ -1,17 +1,25 @@
 from flask import Flask, make_response, jsonify, g
 from flask_restful import Api
-from .db import DBServer
-from .config import config
 from .bp import bp
+from sqlalchemy import create_engine
+from sqlalchemy.orm import scoped_session, sessionmaker
+from sqlalchemy.ext.declarative import declarative_base
+from .config import configer
 
-app = Flask(__name__, static_url_path='/pethub/static')
+app = Flask(__name__, static_url_path='/static')
 # config
-cfg = config['development']
+cfg = configer['development']
 app.config.from_object(cfg)
 cfg.init_app(app)
 # db
-db = DBServer()
-session = db.session
+# db = DBServer()
+# session = db.session
+Base = declarative_base()
+
+engine = create_engine(cfg.SQLALCHEMY_DATABASE_URI, echo=True)
+session = scoped_session(sessionmaker(autocommit=False,autoflush=False,bind=engine))
+Base.query = session.query_property()
+
 
 app.register_blueprint(bp)
 

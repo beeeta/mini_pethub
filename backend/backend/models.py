@@ -4,9 +4,7 @@ from datetime import datetime, timedelta
 from sqlalchemy import Column, Integer, String, ForeignKey
 from sqlalchemy.orm import relationship
 
-from . import db
-
-Base = db.base
+from . import Base
 
 
 class CommonEntity(object):
@@ -34,7 +32,7 @@ class Pet(Base,CommonEntity):
     imgurl = Column(String(200))
     province = Column(String(10))
     city = Column(String(10))
-    # connection = Column(String(64))
+    status = Column(Integer) # 1：待收养 2：领养中 3：已收养
     describe = Column(String(128))
     createtime = Column(String(32))
     updatetime = Column(String(32))
@@ -43,7 +41,7 @@ class Pet(Base,CommonEntity):
 
     out_pros = ('id','imgurl','province','city','describe','createtime','updatetime','valitime')
 
-    def __init__(self, imgurl=None, province=None, city=None, describe=None, createtime=datetime.now().strftime(CommonEntity.timeformat),
+    def __init__(self, imgurl=None, province=None, city=None, describe=None,status=1, createtime=datetime.now().strftime(CommonEntity.timeformat),
                  valitime=(datetime.now()+timedelta(days=30)).strftime(CommonEntity.timeformat)):
         self.imgurl = imgurl
         self.province = province
@@ -51,6 +49,7 @@ class Pet(Base,CommonEntity):
         self.describe = describe
         self.createtime = createtime
         self.valitime = valitime
+        self.status = status
         # self.user = user
         # self.user_id = user_id
 
@@ -120,12 +119,13 @@ class Relation(Base):
     __tablename__ = 'relations'
     user_id = Column(Integer, ForeignKey('users.id'), primary_key=True)
     pet_id = Column(Integer, ForeignKey('pets.id'), primary_key=True)
-    relatypes = Column('relatypes', String(32))
-    createtime = Column('createtime', String(32))
+    relatypes = Column(Integer) # 关系类型 1:人送养动物 2:人收养动物
+    createtime = Column(String(32))
     pet = relationship("Pet", back_populates="users")
     user = relationship("User", back_populates="pets")
 
-    def __init__(self,pet=None,user=None):
+    def __init__(self, pet=None, user=None, relatypes=None):
         self.pet = pet
         self.user = user
+        self.relatypes = relatypes
 

@@ -30,7 +30,7 @@ class Config:
 
 class DevelopmentConfig(Config):
     DEBUG = True
-    SQLALCHEMY_DATABASE_URI = "mysql+pymysql://root:123456@localhost:3307/pethub?charset=utf8";
+    SQLALCHEMY_DATABASE_URI = "mysql+pymysql://root:dxnbf@localhost:3306/pethub?charset=utf8";
 
 
 class TestingConfig(Config):
@@ -102,7 +102,7 @@ class UnixConfig(ProductionConfig):
         app.logger.addHandler(syslog_handler)
 
 
-config = {
+configer = {
     'development': DevelopmentConfig,
     'testing': TestingConfig,
     'production': ProductionConfig,
