@@ -1,14 +1,11 @@
 from flask import request,g,make_response,jsonify
-from . import app
 
-from .authority import auth
-from .modeles import Pet,User
+from . import session,api,app
+# from .authority import auth
+from .models import Pet,User
+# from .db import DBServer
 
-from flask_restful import Api,Resource
-
-from .db import session
-
-api = Api(app)
+from flask_restful import Resource
 
 class AdoptApi(Resource):
     # decorators = [auth.login_required]
@@ -93,8 +90,6 @@ def get_token():
 def shutdown_session(exception=None):
     session.remove()
 
-api.add_resource(AdoptApi, '/pethub/api/{}/adopts/<int:id>'.format(app.config['VERSION']), endpoint = 'adopt')
-api.add_resource(AdoptsApi, '/pethub/api/{}/adopts'.format(app.config['VERSION']), endpoint = 'adopts')
 
-api.add_resource(UserApi, '/pethub/api/{}/users/<int:id>'.format(app.config['VERSION']), endpoint = 'user')
-api.add_resource(UsersApi, '/pethub/api/{}/users'.format(app.config['VERSION']), endpoint = 'users')
+
+

@@ -1,8 +1,8 @@
 from . import app,make_response,jsonify,g
 
 from flask_httpauth import HTTPBasicAuth
-from .db import session
-from .modeles import User
+from . import session
+from .models import User
 
 
 auth = HTTPBasicAuth()

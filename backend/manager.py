@@ -1,8 +1,13 @@
 import fire
-from backend.db import init_db
+from backend.db import DBServer
 
 def init():
-    init_db()
+    db = DBServer()
+    db.init_db()
 
 if __name__ == '__main__':
     fire.Fire()
+
+
+
+

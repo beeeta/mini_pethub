@@ -15,4 +15,5 @@ python-dateutil==2.6.1
 pytz==2017.2
 six==1.11.0
 SQLAlchemy==1.1.14
+structlog==17.2.0
 Werkzeug==0.12.2

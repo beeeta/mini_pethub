@@ -4,7 +4,9 @@ from datetime import datetime, timedelta
 from sqlalchemy import Column, Integer, String, ForeignKey
 from sqlalchemy.orm import relationship
 
-from .db import Base
+from . import db
+
+Base = db.base
 
 
 class CommonEntity(object):
