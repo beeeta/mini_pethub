@@ -1,5 +1,5 @@
 from flask import render_template, jsonify
-from app import app
+from .. import app
 import random
 
 

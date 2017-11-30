@@ -23,7 +23,7 @@ class AdoptApi(Resource):
         return write_resp("success",id)
 
     def delete(self, id):
-        print('delete method:{}'.format(id))
+        session.query(Pet).filter(Pet.id == id).delete()
 
 class AdoptsApi(Resource):
 

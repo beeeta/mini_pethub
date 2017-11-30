@@ -1,9 +1,10 @@
-from flask import Flask, make_response, jsonify, g
+from flask import Flask
 from flask_restful import Api
-from .bp import bp
 from sqlalchemy import create_engine
-from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import scoped_session, sessionmaker
+
+from backend.views.bp import bp
 from .config import configer
 
 app = Flask(__name__, static_url_path='/static')
@@ -15,7 +16,6 @@ cfg.init_app(app)
 # db = DBServer()
 # session = db.session
 Base = declarative_base()
-
 engine = create_engine(cfg.SQLALCHEMY_DATABASE_URI, echo=True)
 session = scoped_session(sessionmaker(autocommit=False,autoflush=False,bind=engine))
 Base.query = session.query_property()
